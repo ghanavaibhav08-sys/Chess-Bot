@@ -38,6 +38,7 @@ def analyze_pgn(pgn_text: str) -> list[dict]:
             fen_before = board.fen()
             is_white_move = board.turn == chess.WHITE
 
+            # Best move + eval BEFORE this move is played
             info_before = engine.analyse(board, chess.engine.Limit(depth=ANALYSIS_DEPTH))
             best_move = info_before["pv"][0] if "pv" in info_before else None
             best_move_san = board.san(best_move) if best_move else None
@@ -49,11 +50,12 @@ def analyze_pgn(pgn_text: str) -> list[dict]:
             score_after = info_after["score"].white().score(mate_score=10000)
             eval_after_white_pov = (score_after or 0) / 100.0
 
+            # Swing from the mover's perspective
             if is_white_move:
                 swing = prev_eval_white_pov - eval_after_white_pov
             else:
                 swing = eval_after_white_pov - prev_eval_white_pov
-            swing = max(swing, 0)
+            swing = max(swing, 0)  # only penalize moves that make things worse
 
             results.append({
                 "ply_number": ply,
