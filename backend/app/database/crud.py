@@ -2,7 +2,19 @@ from app.models.game import Game
 from app.database.connection import SessionLocal
 from app.models.user import User
 from app.models.move import Move
+from app.models.insight import Insight
 
+def save_insight(user_id, category, label, value, sample_size):
+    db = SessionLocal()
+    db.add(Insight(user_id=user_id, category=category, label=label, value=value, sample_size=sample_size))
+    db.commit()
+    db.close()
+
+def clear_insights(user_id):
+    db = SessionLocal()
+    db.query(Insight).filter(Insight.user_id == user_id).delete()
+    db.commit()
+    db.close()
 def save_moves(game_id: int, moves: list[dict]):
     db = SessionLocal()
     for m in moves:
